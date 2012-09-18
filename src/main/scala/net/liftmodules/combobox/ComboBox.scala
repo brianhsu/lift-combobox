@@ -85,7 +85,6 @@ abstract class ComboBox(allowCreate: Boolean, jsonOptions: List[(String, String)
     def onSearching(term: String): List[ComboItem]
 
     private def onItemSelected_*(value: String): JsCmd = {
-
         val item = JsonParser.parse(value).extract[ComboItem]
 
         item.id match {
@@ -99,9 +98,10 @@ abstract class ComboBox(allowCreate: Boolean, jsonOptions: List[(String, String)
         val ajaxFunc = (funcName: String) => {
 
             val term = S.param("term").getOrElse("")
-            val jsonResult = onSearching(term)
+            val itemList: List[ComboItem] = onSearching(term)
+            val jsonOutput = Serialization.write(itemList)(DefaultFormats)
 
-            JsonResponse(JsRaw(Serialization.write(jsonResult)))
+            JsonResponse(JsRaw(jsonOutput))
         }
 
         fmapFunc(SFuncHolder(ajaxFunc)){ funcName =>
