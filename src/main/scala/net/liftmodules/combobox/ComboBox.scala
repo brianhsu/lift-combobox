@@ -26,39 +26,56 @@ case class ComboItem(id: String, text: String)
 
 object ComboBox
 {
-    def apply(searching: (String) => List[ComboItem],
+    def apply(default: Option[ComboItem],
+              searching: (String) => List[ComboItem],
               itemSelected: (String, String) => JsCmd, 
               jsonOptions: List[(String, String)]): ComboBox = {
 
-        new ComboBox(false, jsonOptions) {
+        new ComboBox(default, false, jsonOptions) {
             override def onItemSelected(id: String, text: String) = { itemSelected(id, text) }
             override def onSearching(term: String) = { searching(term) }
         }
     }
 
-    def apply(searching: (String) => List[ComboItem],
+    def apply(default: Option[ComboItem],
+              searching: (String) => List[ComboItem],
               itemSelected: (String, String) => JsCmd, 
               itemAdded: (String) => JsCmd,
               jsonOptions: List[(String, String)]): ComboBox = {
 
-        new ComboBox(true, jsonOptions) {
+        new ComboBox(default, true, jsonOptions) {
             override def onItemSelected(id: String, text: String) = { itemSelected(id, text) }
             override def onItemAdded(text: String) = { itemAdded(text) }
             override def onSearching(term: String) = { searching(term) }
         }
     }
 
+    def apply(default: Option[ComboItem], 
+              searching: (String) => List[ComboItem],
+              itemSelected: (String, String) => JsCmd): ComboBox = {
+
+        ComboBox.apply(default, searching, itemSelected, Nil)
+    }
+
     def apply(searching: (String) => List[ComboItem],
               itemSelected: (String, String) => JsCmd): ComboBox = {
 
-        ComboBox.apply(searching, itemSelected, Nil)
+        ComboBox.apply(None, searching, itemSelected, Nil)
+    }
+
+    def apply(default: Option[ComboItem],
+              searching: (String) => List[ComboItem],
+              itemSelected: (String, String) => JsCmd, 
+              itemAdded: (String) => JsCmd): ComboBox = {
+
+        ComboBox.apply(default, searching, itemSelected, itemAdded, Nil)
     }
 
     def apply(searching: (String) => List[ComboItem],
               itemSelected: (String, String) => JsCmd, 
               itemAdded: (String) => JsCmd): ComboBox = {
 
-        ComboBox.apply(searching, itemSelected, itemAdded, Nil)
+        ComboBox.apply(None, searching, itemSelected, itemAdded, Nil)
     }
 
     /**
@@ -73,7 +90,8 @@ object ComboBox
     }
 }
 
-abstract class ComboBox(allowCreate: Boolean, jsonOptions: List[(String, String)] = Nil)
+abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean, 
+                        jsonOptions: List[(String, String)] = Nil)
 {
     private implicit val formats = DefaultFormats
     private val NewItemPrefix = Helpers.nextFuncName
@@ -93,7 +111,7 @@ abstract class ComboBox(allowCreate: Boolean, jsonOptions: List[(String, String)
         }
     }
 
-    private def ajaxURL: String = {
+    private val ajaxURL: String = {
 
         val ajaxFunc = (funcName: String) => {
 
@@ -109,12 +127,13 @@ abstract class ComboBox(allowCreate: Boolean, jsonOptions: List[(String, String)
         }
     }
 
-    def comboBox: NodeSeq = {
-        
+    private val select2JS = {
         val options = ("width" -> "'200px'") :: jsonOptions
         val jsOptions = JsRaw(options.map(t => "%s: %s" format(t._1, t._2)).mkString(","))
-
-        val onSelectJS = SHtml.ajaxCall(Call("getValue"), onItemSelected_* _)._2.toJsCmd
+        val defaultValue = default match {
+            case None => "[]"
+            case Some(item) => """{'id': '%s', 'text': '%s'}""" format(item.id, item.text)
+        }
 
         val ajaxJS = """{
             url: "%s",
@@ -127,6 +146,36 @@ abstract class ComboBox(allowCreate: Boolean, jsonOptions: List[(String, String)
             }
         }""".format(ajaxURL)
 
+        if (allowCreate) {
+            """
+                $("#%s").select2({
+                    %s,
+                    ajax: %s,
+                    initSelection: function(element, callback) {
+                        var data = %s;
+                        callback(data);
+                    },
+                    createSearchChoice: createNewItem
+                });
+            """.format(comboBoxID, jsOptions.toJsCmd, ajaxJS, defaultValue)
+        } else {
+            """
+                $("#%s").select2({
+                    %s,
+                    ajax: %s,
+                    initSelection: function(element, callback) {
+                        var data = %s;
+                        callback(data);
+                    }
+                });
+            """.format(comboBoxID, jsOptions.toJsCmd, ajaxJS, defaultValue)
+        }
+
+    }
+
+    def comboBox: NodeSeq = {
+
+        val onSelectJS = SHtml.ajaxCall(Call("getValue"), onItemSelected_* _)._2.toJsCmd
         val onChangeJS = """
             $("#%s").on("change", function(e) { 
                 %s 
@@ -149,26 +198,6 @@ abstract class ComboBox(allowCreate: Boolean, jsonOptions: List[(String, String)
             }
         """.format(NewItemPrefix)
 
-        val select2JS = allowCreate match {
-            case false => 
-                """
-                    $("#%s").select2({
-                        %s,
-                        ajax: %s
-                    });
-                """.format(comboBoxID, jsOptions.toJsCmd, ajaxJS)
-
-            case true =>
-
-                """
-                     $("#%s").select2({
-                        %s,
-                        ajax: %s,
-                        createSearchChoice: createNewItem
-                    });
-                """.format(comboBoxID, jsOptions.toJsCmd, ajaxJS)
-        }
-
         val onLoad = OnLoad(
             JsRaw(
                 onChangeJS ++
@@ -178,11 +207,13 @@ abstract class ComboBox(allowCreate: Boolean, jsonOptions: List[(String, String)
             )
         )
 
-        <head>
+        <span>
+          <head>
             <link rel="stylesheet" href={"/" + LiftRules.resourceServerPath + "/combobox/select2.css"} type="text/css" media="all" />
             <script type="text/javascript" src={"/" + LiftRules.resourceServerPath + "/combobox/select2.js"}></script>
             {Script(onLoad)}
-        </head>
-        <input type="hidden" id={comboBoxID} />
+          </head>
+          <input type="hidden" id={comboBoxID} value={default.map(_.id).getOrElse("")}/>
+        </span>
     }
 }
