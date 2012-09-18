@@ -96,11 +96,12 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
     private implicit val formats = DefaultFormats
     private val NewItemPrefix = Helpers.nextFuncName
 
-    val comboBoxID = Helpers.nextFuncName
-
     def onItemSelected(item: Option[ComboItem]): JsCmd = { Noop }
     def onItemAdded(text: String): JsCmd = { Noop }
     def onSearching(term: String): List[ComboItem]
+
+    val comboBoxID = Helpers.nextFuncName
+    val clear: JsCmd = JsRaw("""$("#%s").select2("val", "")""" format(comboBoxID))
 
     private def onItemSelected_*(value: String): JsCmd = {
 
