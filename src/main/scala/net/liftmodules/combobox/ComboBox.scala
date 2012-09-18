@@ -28,23 +28,23 @@ object ComboBox
 {
     def apply(default: Option[ComboItem],
               searching: (String) => List[ComboItem],
-              itemSelected: (String, String) => JsCmd, 
+              itemSelected: (Option[ComboItem]) => JsCmd, 
               jsonOptions: List[(String, String)]): ComboBox = {
 
         new ComboBox(default, false, jsonOptions) {
-            override def onItemSelected(id: String, text: String) = { itemSelected(id, text) }
+            override def onItemSelected(item: Option[ComboItem]) = { itemSelected(item) }
             override def onSearching(term: String) = { searching(term) }
         }
     }
 
     def apply(default: Option[ComboItem],
               searching: (String) => List[ComboItem],
-              itemSelected: (String, String) => JsCmd, 
+              itemSelected: (Option[ComboItem]) => JsCmd, 
               itemAdded: (String) => JsCmd,
               jsonOptions: List[(String, String)]): ComboBox = {
 
         new ComboBox(default, true, jsonOptions) {
-            override def onItemSelected(id: String, text: String) = { itemSelected(id, text) }
+            override def onItemSelected(item: Option[ComboItem]) = { itemSelected(item) }
             override def onItemAdded(text: String) = { itemAdded(text) }
             override def onSearching(term: String) = { searching(term) }
         }
@@ -52,27 +52,27 @@ object ComboBox
 
     def apply(default: Option[ComboItem], 
               searching: (String) => List[ComboItem],
-              itemSelected: (String, String) => JsCmd): ComboBox = {
+              itemSelected: (Option[ComboItem]) => JsCmd): ComboBox = {
 
         ComboBox.apply(default, searching, itemSelected, Nil)
     }
 
     def apply(searching: (String) => List[ComboItem],
-              itemSelected: (String, String) => JsCmd): ComboBox = {
+              itemSelected: (Option[ComboItem]) => JsCmd): ComboBox = {
 
         ComboBox.apply(None, searching, itemSelected, Nil)
     }
 
     def apply(default: Option[ComboItem],
               searching: (String) => List[ComboItem],
-              itemSelected: (String, String) => JsCmd, 
+              itemSelected: (Option[ComboItem]) => JsCmd, 
               itemAdded: (String) => JsCmd): ComboBox = {
 
         ComboBox.apply(default, searching, itemSelected, itemAdded, Nil)
     }
 
     def apply(searching: (String) => List[ComboItem],
-              itemSelected: (String, String) => JsCmd, 
+              itemSelected: (Option[ComboItem]) => JsCmd, 
               itemAdded: (String) => JsCmd): ComboBox = {
 
         ComboBox.apply(None, searching, itemSelected, itemAdded, Nil)
@@ -98,16 +98,21 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
 
     val comboBoxID = Helpers.nextFuncName
 
-    def onItemSelected(id: String, text: String): JsCmd = { Noop }
+    def onItemSelected(item: Option[ComboItem]): JsCmd = { Noop }
     def onItemAdded(text: String): JsCmd = { Noop }
     def onSearching(term: String): List[ComboItem]
 
     private def onItemSelected_*(value: String): JsCmd = {
-        val item = JsonParser.parse(value).extract[ComboItem]
 
-        item.id match {
-            case x if x.startsWith(NewItemPrefix) => onItemAdded(item.text)
-            case _ => onItemSelected(item.id, item.text)
+        if (value == "undefined") {
+            onItemSelected(None)
+        } else {
+            val item = JsonParser.parse(value).extract[ComboItem]
+
+            item.id match {
+                case x if x.startsWith(NewItemPrefix) => onItemAdded(item.text)
+                case _ => onItemSelected(Some(item))
+            }
         }
     }
 
@@ -128,8 +133,8 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
     }
 
     private val select2JS = {
-        val options = ("width" -> "'200px'") :: jsonOptions
-        val jsOptions = JsRaw(options.map(t => "%s: %s" format(t._1, t._2)).mkString(","))
+        val options = ("width" -> "200px") :: jsonOptions
+        val jsOptions = JsRaw(options.map(t => "'%s': '%s'" format(t._1, t._2)).mkString(","))
         val defaultValue = default match {
             case None => "[]"
             case Some(item) => """{'id': '%s', 'text': '%s'}""" format(item.id, item.text)
@@ -185,7 +190,12 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
         val getValueJS = """
             function getValue() {
                 var data = $('#%s').select2("data");
-                return '{"id": "' + data.id + '", "text": "' + data.text + '" }';
+
+                if (data) {
+                    return '{"id": "' + data.id + '", "text": "' + data.text + '" }';
+                } else {
+                    return 'undefined';
+                }
             }
         """.format(comboBoxID)
 
