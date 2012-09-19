@@ -58,7 +58,7 @@ This is quite easily, just call `net.liftmodules.combobox.Combobox.init` in your
         }
     }
 
-Create combobox by Inheritance
+Create ComboBox by Inheritance
 -------------------------------
 
 There are two ways to create combobox, you could create a class that extends from `net.liftmodules.combobox.ComboBox` class, or you could create combobox using `apply` method in ComboBox object. 
@@ -71,49 +71,122 @@ This method accept an arguement called `term`, which is what user input into the
 
 Here is the very basic example:
 
-        import net.liftweb.http.js.JE.Str
-        import net.liftweb.http.js.JsCmd
-        import net.liftweb.http.js.JsCmds.Alert
-  
-        import net.liftmodules.combobox.ComboItem
-        import net.liftmodules.combobox.ComboBox
-    
-        val options = ("placeholder" -> Str("Choice the flavor your like")) :: Nil
-        val comboBox = new ComboBox(
-            default = None,     // The default value of this combo box.
-            allowCreate = true, // Is user allowed to create item that does not exist?
-            jsonOptions = options // The options of select2 combobox.
-        ) {
-    
-            // This is where you build your combox suggestion
-            override def onSearching(term: String): List[ComboItem] = {
-                val flavor = ComboItem("f1", "Valina") :: ComboItem("f2", "Fruit") ::
-                             ComboItem("f3", "Banana") :: ComboItem("f4", "Apple") ::
-                             ComboItem("f5", "Chocolate") :: Nil
-    
-                flavor.filter(_.text.contains(term))
-            }
-    
-            // What you want to do when user selected or cancel an item.
-            //
-            // If user cancel selection by the X button in the combbox, 
-            // selected will be None, otherwise it will be Some[ComboItem].
-            override def onItemSelected(selected: Option[ComboItem]): JsCmd = {
-                println("selected:" + selected)
+    import net.liftweb.http.js.JE.Str
+    import net.liftweb.http.js.JsCmd
+    import net.liftweb.http.js.JsCmds.Alert
 
-                // The returned JsCmd will be executed on client side.
-                Alert("You selected:" + selected)
-            }
+    import net.liftmodules.combobox.ComboItem
+    import net.liftmodules.combobox.ComboBox
 
+    // The options passed to select2, please consult the select2's document to
+    // know what options you could set.
+    val options = ("placeholder" -> Str("Choice the flavor your like")) :: Nil
 
-            // What you want to do if user added an item that
-            // does not exist when allowCreate = true.
-            override def onItemAdded(text: String): JsCmd = {
-                // save this item to database or anything you want to do
-                println("user added " + text)
+    val comboBox = new ComboBox(
+        default = None,     // The default value of this combo box.
+        allowCreate = true, // Is user allowed to create item that does not exist?
+        jsonOptions = options // The options of select2 combobox.
+    ) {
 
-                // The returned JsCmd will be executed on client side.
-                Alert("Saved " + text + " to database")
-            }
+        // This is where you build your combox suggestion
+        override def onSearching(term: String): List[ComboItem] = {
+            val flavor = ComboItem("f1", "Valina") :: ComboItem("f2", "Fruit") ::
+                         ComboItem("f3", "Banana") :: ComboItem("f4", "Apple") ::
+                         ComboItem("f5", "Chocolate") :: Nil
+
+            flavor.filter(_.text.contains(term))
         }
+
+        // What you want to do when user selected or cancel an item.
+        //
+        // If user cancel selection by the X button in the combbox, 
+        // selected will be None, otherwise it will be Some[ComboItem].
+        override def onItemSelected(selected: Option[ComboItem]): JsCmd = {
+            println("selected:" + selected)
+
+            // The returned JsCmd will be executed on client side.
+            Alert("You selected:" + selected)
+        }
+
+
+        // What you want to do if user added an item that
+        // does not exist when allowCreate = true.
+        override def onItemAdded(text: String): JsCmd = {
+            // save this item to database or anything you want to do
+            println("user added " + text)
+
+            // The returned JsCmd will be executed on client side.
+            Alert("Saved " + text + " to database")
+        }
+    }
+
+After you have created ComboBox object, just binding `comboBox` to where you want the combobox to display using Lift's CSS binding feature in your snippet.
+
+    "class=flavorInput" #> comboBox.comboBox
+
+Now you should able to see an combo box when you browse the page.
+
+Create ComboBox by Functions
+-------------------------------
+
+If you prefer functional style and high-order function, there is an factory method in ComboBox object for you.
+
+The following two groups of factory function, one for ComboBox that allowed user add new item on the fly, and the one that does not allowd.
+
+    // Using this group of functions when you want user is allowed to added new item.
+    def apply(searching: (String) ⇒ List[ComboItem], itemSelected: (Option[ComboItem]) ⇒ JsCmd, itemAdded: (String) ⇒ JsCmd): ComboBox
+    def apply(default: Option[ComboItem], searching: (String) ⇒ List[ComboItem], itemSelected: (Option[ComboItem]) ⇒ JsCmd, itemAdded: (String) ⇒ JsCmd): ComboBox
+    def apply(default: Option[ComboItem], searching: (String) ⇒ List[ComboItem], itemSelected: (Option[ComboItem]) ⇒ JsCmd, itemAdded: (String) ⇒ JsCmd, jsonOptions: List[(String, JsExp)]): ComboBox
+
+    // Using this group of functions when you want user is not allowed to added new item.
+    def apply(searching: (String) ⇒ List[ComboItem], itemSelected: (Option[ComboItem]) ⇒ JsCmd): ComboBox
+    def apply(default: Option[ComboItem], searching: (String) ⇒ List[ComboItem], itemSelected: (Option[ComboItem]) ⇒ JsCmd): ComboBox
+    def apply(default: Option[ComboItem], searching: (String) ⇒ List[ComboItem], itemSelected: (Option[ComboItem]) ⇒ JsCmd, jsonOptions: List[(String, JsExp)]): ComboBox
+
+The usage is pretty much the same with using inheritance.
+
+    import net.liftweb.http.js.JE.Str
+    import net.liftweb.http.js.JsCmd
+    import net.liftweb.http.js.JsCmds.Alert
+
+    import net.liftmodules.combobox.ComboItem
+    import net.liftmodules.combobox.ComboBox
+
+    val options = ("placeholder" -> Str("Choice the flavor your like")) :: Nil
+
+    // This is where you build your combox suggestion
+    def onSearching(term: String): List[ComboItem] = {
+        val flavor = ComboItem("f1", "Valina") :: ComboItem("f2", "Fruit") ::
+                     ComboItem("f3", "Banana") :: ComboItem("f4", "Apple") ::
+                     ComboItem("f5", "Chocolate") :: Nil
+
+        flavor.filter(_.text.contains(term))
+    }
+
+    // What you want to do when user selected or cancel an item.
+    //
+    // If user cancel selection by the X button in the combbox, 
+    // selected will be None, otherwise it will be Some[ComboItem].
+    def onItemSelected(selected: Option[ComboItem]): JsCmd = {
+        println("selected:" + selected)
+
+        // The returned JsCmd will be executed on client side.
+        Alert("You selected:" + selected)
+    }
+
+    // What you want to do if user added an item that
+    // does not exist when allowCreate = true.
+    def onItemAdded(text: String): JsCmd = {
+        // save this item to database or anything you want to do
+        println("user added " + text)
+
+        // The returned JsCmd will be executed on client side.
+        Alert("Saved " + text + " to database")
+    }
+
+    val comboBox = ComboBox(None, onSearching _, onItemSelected _, onItemAdded _, options)
+
+And binding `comboBox.comboBox` to template in your snippet.
+
+    "class=flavorInput" #> comboBox.comboBox
 
