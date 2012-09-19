@@ -13,6 +13,7 @@ import net.liftweb.http.js.JE.Call
 import net.liftweb.http.js.JsCmd
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.JE._
+import net.liftweb.http.js.JsExp
 
 import net.liftweb.http.SHtml
 import net.liftweb.http.S
@@ -29,7 +30,7 @@ object ComboBox
     def apply(default: Option[ComboItem],
               searching: (String) => List[ComboItem],
               itemSelected: (Option[ComboItem]) => JsCmd, 
-              jsonOptions: List[(String, String)]): ComboBox = {
+              jsonOptions: List[(String, JsExp)]): ComboBox = {
 
         new ComboBox(default, false, jsonOptions) {
             override def onItemSelected(item: Option[ComboItem]) = { itemSelected(item) }
@@ -41,7 +42,7 @@ object ComboBox
               searching: (String) => List[ComboItem],
               itemSelected: (Option[ComboItem]) => JsCmd, 
               itemAdded: (String) => JsCmd,
-              jsonOptions: List[(String, String)]): ComboBox = {
+              jsonOptions: List[(String, JsExp)]): ComboBox = {
 
         new ComboBox(default, true, jsonOptions) {
             override def onItemSelected(item: Option[ComboItem]) = { itemSelected(item) }
@@ -91,7 +92,7 @@ object ComboBox
 }
 
 abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean, 
-                        jsonOptions: List[(String, String)] = Nil)
+                        jsonOptions: List[(String, JsExp)] = Nil)
 {
     private implicit val formats = DefaultFormats
     private val NewItemPrefix = Helpers.nextFuncName
@@ -134,8 +135,10 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
     }
 
     private val select2JS = {
-        val options = ("width" -> "200px") :: jsonOptions
-        val jsOptions = JsRaw(options.map(t => "'%s': '%s'" format(t._1, t._2)).mkString(","))
+
+        val options: List[(String, JsExp)] = ("width" -> Str("200px")) :: jsonOptions
+        val jsOptions = options.map(t => "'%s': %s" format(t._1, t._2.toJsCmd)).mkString(",")
+
         val defaultValue = default match {
             case None => "[]"
             case Some(item) => """{'id': '%s', 'text': '%s'}""" format(item.id, item.text)
@@ -163,7 +166,7 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
                     },
                     createSearchChoice: createNewItem
                 });
-            """.format(comboBoxID, jsOptions.toJsCmd, ajaxJS, defaultValue)
+            """.format(comboBoxID, jsOptions, ajaxJS, defaultValue)
         } else {
             """
                 $("#%s").select2({
@@ -173,8 +176,8 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
                         var data = %s;
                         callback(data);
                     }
-                });
-            """.format(comboBoxID, jsOptions.toJsCmd, ajaxJS, defaultValue)
+                })
+            """.format(comboBoxID, jsOptions, ajaxJS, defaultValue)
         }
 
     }
