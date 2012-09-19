@@ -36,7 +36,9 @@ Using lift-combobox module
 ScalaDoc API
 -----------------
 
-Here is the full ScalaDoc API about this module.
+Here is the full [ScalaDoc API][03] about this module.
+
+[03]: http://brianhsu.github.com/lift-combobox/scaladoc/#package
 
 Initial lift-combox
 ---------------------
