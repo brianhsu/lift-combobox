@@ -12,6 +12,8 @@ crossScalaVersions := Seq("2.9.2", "2.9.1-1", "2.9.1")
 
 scalacOptions ++= Seq("-unchecked", "-deprecation")
 
+scalacOptions in (Compile, doc) ++= Opts.doc.title("Lift ComboBox Module") 
+
 resolvers ++= Seq(
     "Scala-Tools" at "https://oss.sonatype.org/content/repositories/snapshots/"
 )
