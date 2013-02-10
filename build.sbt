@@ -1,12 +1,12 @@
 name := "combobox"
 
-liftVersion <<= liftVersion ?? "2.5-SNAPSHOT"
+liftVersion <<= liftVersion ?? "2.5-M4"
 
 version <<= liftVersion apply { _ + "-0.1" }
 
 organization := "net.liftmodules"
  
-scalaVersion := "2.9.2"
+scalaVersion := "2.10.0"
 
 crossScalaVersions := Seq("2.9.2", "2.9.1-1", "2.9.1")
 
