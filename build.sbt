@@ -1,8 +1,8 @@
 name := "combobox"
 
-liftVersion <<= liftVersion ?? "2.5-M4"
+liftVersion <<= liftVersion ?? "2.5-RC1"
 
-version <<= liftVersion apply { _ + "-0.1" }
+version <<= liftVersion apply { _ + "-0.2" }
 
 organization := "net.liftmodules"
  
@@ -21,3 +21,7 @@ resolvers ++= Seq(
 libraryDependencies <++= liftVersion { v =>
   "net.liftweb" %% "lift-webkit" % v % "compile->default" :: Nil
 }    
+
+publishTo := Some(
+  Resolver.sftp("bone", "bone.twbbs.org.tw", "public_html/ivy")
+)

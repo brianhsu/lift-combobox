@@ -201,6 +201,15 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
     def onItemSelected(item: Option[ComboItem]): JsCmd = { Noop }
 
     /**
+     *  What we should do when user selected / canceled an item on multiselect.
+     *
+     *  @param  item    If user selected an item, it will be Some[ComboItem].
+     *                  if user canceled the current item, it will be None.
+     *  @return         What JsCmd should execute on client side.
+     */
+    def onMultiItemSelected(items: List[ComboItem]): JsCmd = { Noop }
+
+    /**
      *  What we should do when user added an item.
      *
      *  @param  text    The text user entered into combo box.
@@ -226,16 +235,21 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
      *  @return         The JavaScript should be exectued on client side.
      */
     private def onItemSelected_*(value: String): JsCmd = {
+        JsonParser.parse(value) match {
+          case JNull => onItemSelected(None)
+          case JArray(items) => 
+            val selected = items.map(_.extract[ComboItem]).toList
+            onMultiItemSelected(selected)
 
-        if (value == "undefined") {
-            onItemSelected(None)
-        } else {
-            val item = JsonParser.parse(value).extract[ComboItem]
+          case jsonObj => 
+
+            val item = jsonObj.extract[ComboItem]
 
             item.id match {
                 case x if x.startsWith(NewItemPrefix) => onItemAdded(item.text)
                 case _ => onItemSelected(Some(item))
             }
+
         }
     }
 
@@ -317,23 +331,19 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
      */
     def comboBox: NodeSeq = {
 
-        val onSelectJS = SHtml.ajaxCall(Call("getValue"), onItemSelected_* _)._2.toJsCmd
+        val onSelectJS = SHtml.ajaxCall(Call("getJSON"), onItemSelected_* _)._2.toJsCmd
         val onChangeJS = """
             $("#%s").on("change", function(e) { 
                 %s 
             });
         """.format(comboBoxID, onSelectJS)
 
-        val getValueJS = """
-            function getValue() {
-                var data = $('#%s').select2("data");
+        val getJsonJS = """
 
-                if (data) {
-                    return '{"id": "' + data.id + '", "text": "' + data.text + '" }';
-                } else {
-                    return 'undefined';
-                }
+            function getJSON() {
+                return JSON.stringify($('#%s').select2("data"));
             }
+
         """.format(comboBoxID)
 
         val createSearchChoiceJS = """
@@ -348,7 +358,7 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
         val onLoad = OnLoad(
             JsRaw(
                 onChangeJS ++
-                getValueJS ++
+                getJsonJS ++
                 createSearchChoiceJS ++
                 select2JS
             )
