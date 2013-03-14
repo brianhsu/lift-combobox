@@ -146,6 +146,28 @@ object ComboBox
   }
   
   /**
+   *  Create ComboBox widget that allowed multiple values.
+   *
+   *  @param  searching       The builiding function of suggestion list, 
+   *                          the String argument is what user input into the combobox.
+   *  @param  itemsSelected   What to do if user selected / unselect  item in combobox, 
+   *                          the returned JsCmd will execute on client side.
+   */
+  def apply(searching: (String) => List[ComboItem],
+            itemsSelected: (List[ComboItem]) => JsCmd, 
+            allowCreate: Boolean,
+            jsonOptions: List[(String, JsExp)]): ComboBox = {
+
+    new ComboBox(None, allowCreate, jsonOptions) {
+      override def onSearching(term: String) = { searching(term) }
+      override def onMultiItemSelected(items: List[ComboItem]): JsCmd = { 
+        itemsSelected(items) 
+      }
+    }
+  }
+
+
+  /**
    *  Register the resources with lift.
    *
    *  You should call this method in your `Boot` class to initialize ComboBox module.
@@ -156,20 +178,6 @@ object ComboBox
     ResourceServer.allow({
       case "combobox" :: _ => true
     })
-  }
-}
-
-trait AutoCompleteHandler {
-
-  def onSearching(term: String): List[ComboItem]
-
-  protected def initAjaxURL(): String
-
-  protected def searchAjax(term: String): LiftResponse = {
-    val itemList: List[ComboItem] = onSearching(term)
-    val jsonOutput = Serialization.write(itemList)(DefaultFormats)
-
-    JsonResponse(JsRaw(jsonOutput))
   }
 }
 
@@ -195,7 +203,7 @@ trait AutoCompleteHandler {
  *  @param  jsonOptions     The options should pass to select2.
  */
 abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean, 
-                        jsonOptions: List[(String, JsExp)] = Nil) extends AutoCompleteHandler
+                        jsonOptions: List[(String, JsExp)] = Nil) extends DropDownMenu
 {
   private val NewItemPrefix = Helpers.nextFuncName
   private val dataParser = new DataParser(NewItemPrefix)
@@ -264,6 +272,8 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
   /**
    *  Register the onSearching method as an Lift's ajax function that
    *  could access from URL.
+   *
+   *  @return   The AJAX callback URL.
    */
   override protected def initAjaxURL() = {
 
@@ -274,7 +284,21 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
     }
   }
 
+  /**
+   *  The search function AJAX callback URL.
+   */
   private val ajaxURL: String = initAjaxURL
+
+  /**
+   *  Convert options to JavaScript
+   *
+   *  @param    options   The options of ComboBox
+   *  @return             The corresponding options in JavaScript format.
+   */
+  private def convertOptionsToJS(options: List[(String, JsExp)]) = {
+    val jsonOptions = options.map { case(k, v) => "'%s': %s" format(k, v.toJsCmd) }
+    jsonOptions.mkString(",")
+  }
 
   /**
    *  The JavaScript code that initial the combobox.
@@ -282,7 +306,7 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
   private val select2JS = {
 
     val options: List[(String, JsExp)] = ("width" -> Str("200px")) :: jsonOptions
-    val jsOptions = options.map(t => "'%s': %s" format(t._1, t._2.toJsCmd)).mkString(",")
+    val jsOptions = convertOptionsToJS(options)
 
     val defaultValue = default match {
       case None => "[]"
@@ -340,11 +364,9 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
 
     val getJsonJS = """
       function getJSON() {
-        var temp = JSON.stringify($('#%s').select2("data"));
-        console.log(temp);
-        return temp;
+        var jsonData = JSON.stringify($('#%s').select2("data"));
+        return jsonData;
       }
-
     """.format(comboBoxID)
 
     val createSearchChoiceJS = """
@@ -354,7 +376,7 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
           return {"id": "%s" + term, "text": term};
         } 
       }
-      """.format(NewItemPrefix)
+    """.format(NewItemPrefix)
 
     val onLoad = OnLoad(
       JsRaw(
