@@ -2,7 +2,7 @@ name := "combobox"
 
 liftVersion <<= liftVersion ?? "2.5-RC2"
 
-version <<= liftVersion apply { _ + "-0.2" }
+version <<= liftVersion apply { _ + "-0.3" }
 
 organization := "net.liftmodules"
  

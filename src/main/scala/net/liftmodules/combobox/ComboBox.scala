@@ -8,6 +8,8 @@ import net.liftweb.json.Serialization
 
 import net.liftweb.http.LiftRules
 import net.liftweb.http.JsonResponse
+import net.liftweb.http.LiftResponse
+
 import net.liftweb.http.js.JE.JsRaw
 import net.liftweb.http.js.JE.Call
 import net.liftweb.http.js.JsCmd
@@ -157,6 +159,21 @@ object ComboBox
   }
 }
 
+trait AutoCompleteHandler {
+
+  def onSearching(term: String): List[ComboItem]
+
+  protected def initAjaxURL(): String
+
+  protected def searchAjax(term: String): LiftResponse = {
+    val itemList: List[ComboItem] = onSearching(term)
+    val jsonOutput = Serialization.write(itemList)(DefaultFormats)
+
+    JsonResponse(JsRaw(jsonOutput))
+  }
+}
+
+
 /**
  *  The ComboBox Widget
  *
@@ -178,10 +195,10 @@ object ComboBox
  *  @param  jsonOptions     The options should pass to select2.
  */
 abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean, 
-                        jsonOptions: List[(String, JsExp)] = Nil)
+                        jsonOptions: List[(String, JsExp)] = Nil) extends AutoCompleteHandler
 {
-  private implicit val formats = DefaultFormats
   private val NewItemPrefix = Helpers.nextFuncName
+  private val dataParser = new DataParser(NewItemPrefix)
 
   /**
    *  The method that build suggestion list.
@@ -235,43 +252,29 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
    *  @return         The JavaScript should be exectued on client side.
    */
   private def onItemSelected_*(value: String): JsCmd = {
-    JsonParser.parse(value) match {
-      case JNull => onItemSelected(None)
-      case JArray(items) => 
-        val selected = items.map(_.extract[ComboItem]).toList
-        onMultiItemSelected(selected)
-
-      case jsonObj => 
-
-        val item = jsonObj.extract[ComboItem]
-
-        item.id match {
-          case x if x.startsWith(NewItemPrefix) => onItemAdded(item.text)
-          case _ => onItemSelected(Some(item))
-        }
+    dataParser.parseSelected(value) match {
+      case Left(items) => onMultiItemSelected(items)
+      case Right(None) => onItemSelected(None)
+      case Right(Some((item, true))) => onItemAdded(item.text)
+      case Right(Some((item, false))) => onItemSelected(Some(item))
     }
   }
+
 
   /**
    *  Register the onSearching method as an Lift's ajax function that
    *  could access from URL.
-   *
-   *  @param  The url that invoke onSearching method.
    */
-  private val ajaxURL: String = {
+  override protected def initAjaxURL() = {
 
-    val ajaxFunc = (funcName: String) => {
-      val term = S.param("term").getOrElse("")
-      val itemList: List[ComboItem] = onSearching(term)
-      val jsonOutput = Serialization.write(itemList)(DefaultFormats)
-
-      JsonResponse(JsRaw(jsonOutput))
-    }
+    val ajaxFunc = (funcName: String) => searchAjax(S.param("term").getOrElse(""))
 
     fmapFunc(SFuncHolder(ajaxFunc)) { funcName =>
       encodeURL(S.contextPath + "/" + LiftRules.ajaxPath+"?"+funcName+"=foo")
     }
   }
+
+  private val ajaxURL: String = initAjaxURL
 
   /**
    *  The JavaScript code that initial the combobox.
@@ -337,7 +340,9 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
 
     val getJsonJS = """
       function getJSON() {
-        return JSON.stringify($('#%s').select2("data"));
+        var temp = JSON.stringify($('#%s').select2("data"));
+        console.log(temp);
+        return temp;
       }
 
     """.format(comboBoxID)
