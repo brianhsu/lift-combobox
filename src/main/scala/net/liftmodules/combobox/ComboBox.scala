@@ -30,131 +30,131 @@ import scala.xml.NodeSeq
  */
 object ComboBox
 {
-    /**
-     *  Create ComboBox widget that does not allowed user create new items.
-     *
-     *  @param  default         The default value of combobox when page is loaded.
-     *  @param  searching       The builiding function of suggestion list, 
-     *                          the String argument is what user input into the combobox.
-     *  @param  itemSelected    What to do if user selected an item in combobox, 
-     *                          the returned JsCmd will execute on client side.
-     *  @param  jsonOptions     The options passed to select2.
-     */
-    def apply(default: Option[ComboItem],
-              searching: (String) => List[ComboItem],
-              itemSelected: (Option[ComboItem]) => JsCmd, 
-              jsonOptions: List[(String, JsExp)]): ComboBox = {
-
-        new ComboBox(default, false, jsonOptions) {
-            override def onItemSelected(item: Option[ComboItem]) = { itemSelected(item) }
-            override def onSearching(term: String) = { searching(term) }
-        }
-    }
-
-    /**
-     *  Create ComboBox widget that does not allowed user create new items.
-     *
-     *  @param  default         The default value of combobox when page is loaded.
-     *  @param  searching       The builiding function of suggestion list, 
-     *                          the String argument is what user input into the combobox.
-     *  @param  itemSelected    What to do if user selected an item in combobox, 
-     *                          the returned JsCmd will execute on client side.
-     */
-    def apply(default: Option[ComboItem], 
-              searching: (String) => List[ComboItem],
-              itemSelected: (Option[ComboItem]) => JsCmd): ComboBox = {
-
-        ComboBox.apply(default, searching, itemSelected, Nil)
-    }
-
-    /**
-     *  Create ComboBox widget that does not allowed user create new items.
-     *
-     *  @param  searching       The builiding function of suggestion list, 
-     *                          the String argument is what user input into the combobox.
-     *  @param  itemSelected    What to do if user selected an item in combobox, 
-     *                          the returned JsCmd will execute on client side.
-     */
-    def apply(searching: (String) => List[ComboItem],
-              itemSelected: (Option[ComboItem]) => JsCmd): ComboBox = {
-
-        ComboBox.apply(None, searching, itemSelected, Nil)
-    }
-
-    /**
-     *  Create ComboBox widget that allowed user create new items.
-     *
-     *  @param  default         The default value of combobox when page is loaded.
-     *  @param  searching       The builiding function of suggestion list, 
-     *                          the String argument is what user input into the combobox.
-     *  @param  itemSelected    What to do if user selected an item in combobox, 
-     *                          the returned JsCmd will execute on client side.
-     *  @param  itemAdded       What to do if user added an item into combobox,
-     *                          the returned JsCmd will execute on client side.
-     *  @param  jsonOptions     The options passed to select2.
-     */
-    def apply(default: Option[ComboItem],
-              searching: (String) => List[ComboItem],
-              itemSelected: (Option[ComboItem]) => JsCmd, 
-              itemAdded: (String) => JsCmd,
-              jsonOptions: List[(String, JsExp)]): ComboBox = {
-
-        new ComboBox(default, true, jsonOptions) {
-            override def onItemSelected(item: Option[ComboItem]) = { itemSelected(item) }
-            override def onItemAdded(text: String) = { itemAdded(text) }
-            override def onSearching(term: String) = { searching(term) }
-        }
-    }
-
-
-    /**
-     *  Create ComboBox widget that allowed user create new items.
-     *
-     *  @param  default         The default value of combobox when page is loaded.
-     *  @param  searching       The builiding function of suggestion list, 
-     *                          the String argument is what user input into the combobox.
-     *  @param  itemSelected    What to do if user selected an item in combobox, 
-     *                          the returned JsCmd will execute on client side.
-     *  @param  itemAdded       What to do if user added an item into combobox,
-     *                          the returned JsCmd will execute on client side.
-     */
-    def apply(default: Option[ComboItem],
-              searching: (String) => List[ComboItem],
-              itemSelected: (Option[ComboItem]) => JsCmd, 
-              itemAdded: (String) => JsCmd): ComboBox = {
-
-        ComboBox.apply(default, searching, itemSelected, itemAdded, Nil)
-    }
-
-    /**
-     *  Create ComboBox widget that allowed user create new items.
-     *
-     *  @param  searching       The builiding function of suggestion list, 
-     *                          the String argument is what user input into the combobox.
-     *  @param  itemSelected    What to do if user selected an item in combobox, 
-     *                          the returned JsCmd will execute on client side.
-     *  @param  itemAdded       What to do if user added an item into combobox,
-     *                          the returned JsCmd will execute on client side.
-     */
-    def apply(searching: (String) => List[ComboItem],
-              itemSelected: (Option[ComboItem]) => JsCmd, 
-              itemAdded: (String) => JsCmd): ComboBox = {
-
-        ComboBox.apply(None, searching, itemSelected, itemAdded, Nil)
-    }
-
-    /**
-     *  Register the resources with lift.
-     *
-     *  You should call this method in your `Boot` class to initialize ComboBox module.
-     */
-    def init() {
-        import net.liftweb.http.ResourceServer
+  /**
+   *  Create ComboBox widget that does not allowed user create new items.
+   *
+   *  @param  default         The default value of combobox when page is loaded.
+   *  @param  searching       The builiding function of suggestion list, 
+   *                          the String argument is what user input into the combobox.
+   *  @param  itemSelected    What to do if user selected an item in combobox, 
+   *                          the returned JsCmd will execute on client side.
+   *  @param  jsonOptions     The options passed to select2.
+   */
+  def apply(default: Option[ComboItem],
+            searching: (String) => List[ComboItem],
+            itemSelected: (Option[ComboItem]) => JsCmd, 
+            jsonOptions: List[(String, JsExp)]): ComboBox = {
   
-        ResourceServer.allow({
-            case "combobox" :: _ => true
-        })
+    new ComboBox(default, false, jsonOptions) {
+      override def onItemSelected(item: Option[ComboItem]) = { itemSelected(item) }
+      override def onSearching(term: String) = { searching(term) }
     }
+  }
+  
+  /**
+   *  Create ComboBox widget that does not allowed user create new items.
+   *
+   *  @param  default         The default value of combobox when page is loaded.
+   *  @param  searching       The builiding function of suggestion list, 
+   *                          the String argument is what user input into the combobox.
+   *  @param  itemSelected    What to do if user selected an item in combobox, 
+   *                          the returned JsCmd will execute on client side.
+   */
+  def apply(default: Option[ComboItem], 
+            searching: (String) => List[ComboItem],
+            itemSelected: (Option[ComboItem]) => JsCmd): ComboBox = {
+  
+    ComboBox.apply(default, searching, itemSelected, Nil)
+  }
+  
+  /**
+   *  Create ComboBox widget that does not allowed user create new items.
+   *
+   *  @param  searching       The builiding function of suggestion list, 
+   *                          the String argument is what user input into the combobox.
+   *  @param  itemSelected    What to do if user selected an item in combobox, 
+   *                          the returned JsCmd will execute on client side.
+   */
+  def apply(searching: (String) => List[ComboItem],
+            itemSelected: (Option[ComboItem]) => JsCmd): ComboBox = {
+  
+    ComboBox.apply(None, searching, itemSelected, Nil)
+  }
+  
+  /**
+   *  Create ComboBox widget that allowed user create new items.
+   *
+   *  @param  default         The default value of combobox when page is loaded.
+   *  @param  searching       The builiding function of suggestion list, 
+   *                          the String argument is what user input into the combobox.
+   *  @param  itemSelected    What to do if user selected an item in combobox, 
+   *                          the returned JsCmd will execute on client side.
+   *  @param  itemAdded       What to do if user added an item into combobox,
+   *                          the returned JsCmd will execute on client side.
+   *  @param  jsonOptions     The options passed to select2.
+   */
+  def apply(default: Option[ComboItem],
+            searching: (String) => List[ComboItem],
+            itemSelected: (Option[ComboItem]) => JsCmd, 
+            itemAdded: (String) => JsCmd,
+            jsonOptions: List[(String, JsExp)]): ComboBox = {
+  
+    new ComboBox(default, true, jsonOptions) {
+      override def onItemSelected(item: Option[ComboItem]) = { itemSelected(item) }
+      override def onItemAdded(text: String) = { itemAdded(text) }
+      override def onSearching(term: String) = { searching(term) }
+    }
+  }
+  
+  
+  /**
+   *  Create ComboBox widget that allowed user create new items.
+   *
+   *  @param  default         The default value of combobox when page is loaded.
+   *  @param  searching       The builiding function of suggestion list, 
+   *                          the String argument is what user input into the combobox.
+   *  @param  itemSelected    What to do if user selected an item in combobox, 
+   *                          the returned JsCmd will execute on client side.
+   *  @param  itemAdded       What to do if user added an item into combobox,
+   *                          the returned JsCmd will execute on client side.
+   */
+  def apply(default: Option[ComboItem],
+            searching: (String) => List[ComboItem],
+            itemSelected: (Option[ComboItem]) => JsCmd, 
+            itemAdded: (String) => JsCmd): ComboBox = {
+  
+    ComboBox.apply(default, searching, itemSelected, itemAdded, Nil)
+  }
+  
+  /**
+   *  Create ComboBox widget that allowed user create new items.
+   *
+   *  @param  searching       The builiding function of suggestion list, 
+   *                          the String argument is what user input into the combobox.
+   *  @param  itemSelected    What to do if user selected an item in combobox, 
+   *                          the returned JsCmd will execute on client side.
+   *  @param  itemAdded       What to do if user added an item into combobox,
+   *                          the returned JsCmd will execute on client side.
+   */
+  def apply(searching: (String) => List[ComboItem],
+            itemSelected: (Option[ComboItem]) => JsCmd, 
+            itemAdded: (String) => JsCmd): ComboBox = {
+  
+    ComboBox.apply(None, searching, itemSelected, itemAdded, Nil)
+  }
+  
+  /**
+   *  Register the resources with lift.
+   *
+   *  You should call this method in your `Boot` class to initialize ComboBox module.
+   */
+  def init() {
+    import net.liftweb.http.ResourceServer
+  
+    ResourceServer.allow({
+      case "combobox" :: _ => true
+    })
+  }
 }
 
 /**
@@ -180,197 +180,193 @@ object ComboBox
 abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean, 
                         jsonOptions: List[(String, JsExp)] = Nil)
 {
-    private implicit val formats = DefaultFormats
-    private val NewItemPrefix = Helpers.nextFuncName
+  private implicit val formats = DefaultFormats
+  private val NewItemPrefix = Helpers.nextFuncName
 
-    /**
-     *  The method that build suggestion list.
-     *  
-     *  @param  term    The text user input into the combobox.
-     *  @return         The combobox suggestion items.
-     */
-    def onSearching(term: String): List[ComboItem]
+  /**
+   *  The method that build suggestion list.
+   *  
+   *  @param  term    The text user input into the combobox.
+   *  @return         The combobox suggestion items.
+   */
+  def onSearching(term: String): List[ComboItem]
 
-    /**
-     *  What we should do when user selected / canceled an item.
-     *
-     *  @param  item    If user selected an item, it will be Some[ComboItem].
-     *                  if user canceled the current item, it will be None.
-     *  @return         What JsCmd should execute on client side.
-     */
-    def onItemSelected(item: Option[ComboItem]): JsCmd = { Noop }
+  /**
+   *  What we should do when user selected / canceled an item.
+   *
+   *  @param  item    If user selected an item, it will be Some[ComboItem].
+   *                  if user canceled the current item, it will be None.
+   *  @return         What JsCmd should execute on client side.
+   */
+  def onItemSelected(item: Option[ComboItem]): JsCmd = Noop
 
-    /**
-     *  What we should do when user selected / canceled an item on multiselect.
-     *
-     *  @param  item    If user selected an item, it will be Some[ComboItem].
-     *                  if user canceled the current item, it will be None.
-     *  @return         What JsCmd should execute on client side.
-     */
-    def onMultiItemSelected(items: List[ComboItem]): JsCmd = { Noop }
+  /**
+   *  What we should do when user selected / canceled an item on multiselect.
+   *
+   *  @param  item    If user selected an item, it will be Some[ComboItem].
+   *                  if user canceled the current item, it will be None.
+   *  @return         What JsCmd should execute on client side.
+   */
+  def onMultiItemSelected(items: List[ComboItem]): JsCmd = Noop
 
-    /**
-     *  What we should do when user added an item.
-     *
-     *  @param  text    The text user entered into combo box.
-     *  @return         What JsCmd should execute on client side.
-     */
-    def onItemAdded(text: String): JsCmd = { Noop }
+  /**
+   *  What we should do when user added an item.
+   *
+   *  @param  text    The text user entered into combo box.
+   *  @return         What JsCmd should execute on client side.
+   */
+  def onItemAdded(text: String): JsCmd = Noop
 
-    /**
-     *  The id of HTML hidden input box associate with select2 combobox.
-     */
-    val comboBoxID = Helpers.nextFuncName
+  /**
+   *  The id of HTML hidden input box associate with select2 combobox.
+   */
+  val comboBoxID = Helpers.nextFuncName
 
-    /**
-     *  The JsCmd that could clear current selection in the combobox.
-     */
-    val clear: JsCmd = JsRaw("""$("#%s").select2("val", "")""" format(comboBoxID))
+  /**
+   *  The JsCmd that could clear current selection in the combobox.
+   */
+  val clear: JsCmd = JsRaw("""$("#%s").select2("val", "")""" format(comboBoxID))
 
-    /**
-     *  This will be called when user selected or inserted an item in the combobox,
-     *  and delegated to the corresponding callback function.
-     *
-     *  @param  value   The selected item.
-     *  @return         The JavaScript should be exectued on client side.
-     */
-    private def onItemSelected_*(value: String): JsCmd = {
-        JsonParser.parse(value) match {
-          case JNull => onItemSelected(None)
-          case JArray(items) => 
-            val selected = items.map(_.extract[ComboItem]).toList
-            onMultiItemSelected(selected)
+  /**
+   *  This will be called when user selected or inserted an item in the combobox,
+   *  and delegated to the corresponding callback function.
+   *
+   *  @param  value   The selected item.
+   *  @return         The JavaScript should be exectued on client side.
+   */
+  private def onItemSelected_*(value: String): JsCmd = {
+    JsonParser.parse(value) match {
+      case JNull => onItemSelected(None)
+      case JArray(items) => 
+        val selected = items.map(_.extract[ComboItem]).toList
+        onMultiItemSelected(selected)
 
-          case jsonObj => 
+      case jsonObj => 
 
-            val item = jsonObj.extract[ComboItem]
+        val item = jsonObj.extract[ComboItem]
 
-            item.id match {
-                case x if x.startsWith(NewItemPrefix) => onItemAdded(item.text)
-                case _ => onItemSelected(Some(item))
-            }
-
+        item.id match {
+          case x if x.startsWith(NewItemPrefix) => onItemAdded(item.text)
+          case _ => onItemSelected(Some(item))
         }
     }
+  }
 
-    /**
-     *  Register the onSearching method as an Lift's ajax function that
-     *  could access from URL.
-     *
-     *  @param  The url that invoke onSearching method.
-     */
-    private val ajaxURL: String = {
+  /**
+   *  Register the onSearching method as an Lift's ajax function that
+   *  could access from URL.
+   *
+   *  @param  The url that invoke onSearching method.
+   */
+  private val ajaxURL: String = {
 
-        val ajaxFunc = (funcName: String) => {
+    val ajaxFunc = (funcName: String) => {
+      val term = S.param("term").getOrElse("")
+      val itemList: List[ComboItem] = onSearching(term)
+      val jsonOutput = Serialization.write(itemList)(DefaultFormats)
 
-            val term = S.param("term").getOrElse("")
-            val itemList: List[ComboItem] = onSearching(term)
-            val jsonOutput = Serialization.write(itemList)(DefaultFormats)
-
-            JsonResponse(JsRaw(jsonOutput))
-        }
-
-        fmapFunc(SFuncHolder(ajaxFunc)){ funcName =>
-           encodeURL(S.contextPath + "/" + LiftRules.ajaxPath+"?"+funcName+"=foo")
-        }
+      JsonResponse(JsRaw(jsonOutput))
     }
 
-    /**
-     *  The JavaScript code that initial the combobox.
-     */
-    private val select2JS = {
+    fmapFunc(SFuncHolder(ajaxFunc)) { funcName =>
+      encodeURL(S.contextPath + "/" + LiftRules.ajaxPath+"?"+funcName+"=foo")
+    }
+  }
 
-        val options: List[(String, JsExp)] = ("width" -> Str("200px")) :: jsonOptions
-        val jsOptions = options.map(t => "'%s': %s" format(t._1, t._2.toJsCmd)).mkString(",")
+  /**
+   *  The JavaScript code that initial the combobox.
+   */
+  private val select2JS = {
 
-        val defaultValue = default match {
-            case None => "[]"
-            case Some(item) => """{'id': '%s', 'text': '%s'}""" format(item.id, item.text)
-        }
+    val options: List[(String, JsExp)] = ("width" -> Str("200px")) :: jsonOptions
+    val jsOptions = options.map(t => "'%s': %s" format(t._1, t._2.toJsCmd)).mkString(",")
 
-        val ajaxJS = """{
-            url: "%s",
-            dataType: 'json',
-            data: function (term, page) {
-                return { 'term': term }
-            },
-            results: function (data, page) {
-                return {results: data};
-            }
-        }""".format(ajaxURL)
-
-        if (allowCreate) {
-            """
-                $("#%s").select2({
-                    %s,
-                    ajax: %s,
-                    initSelection: function(element, callback) {
-                        var data = %s;
-                        callback(data);
-                    },
-                    createSearchChoice: createNewItem
-                });
-            """.format(comboBoxID, jsOptions, ajaxJS, defaultValue)
-        } else {
-            """
-                $("#%s").select2({
-                    %s,
-                    ajax: %s,
-                    initSelection: function(element, callback) {
-                        var data = %s;
-                        callback(data);
-                    }
-                })
-            """.format(comboBoxID, jsOptions, ajaxJS, defaultValue)
-        }
-
+    val defaultValue = default match {
+      case None => "[]"
+      case Some(item) => """{'id': '%s', 'text': '%s'}""" format(item.id, item.text)
     }
 
-    /**
-     *  The ComboBox HTML code that could bind to template.
-     */
-    def comboBox: NodeSeq = {
+    val ajaxJS = """{
+      url: "%s",
+      dataType: 'json',
+      data: function (term, page) {
+        return { 'term': term }
+      },
+      results: function (data, page) {
+        return {results: data};
+      }
+    }""".format(ajaxURL)
 
-        val onSelectJS = SHtml.ajaxCall(Call("getJSON"), onItemSelected_* _)._2.toJsCmd
-        val onChangeJS = """
-            $("#%s").on("change", function(e) { 
-                %s 
-            });
-        """.format(comboBoxID, onSelectJS)
-
-        val getJsonJS = """
-
-            function getJSON() {
-                return JSON.stringify($('#%s').select2("data"));
-            }
-
-        """.format(comboBoxID)
-
-        val createSearchChoiceJS = """
-            function createNewItem (term, data) { 
-                if ($(data).filter(function() { return this.text.localeCompare(term)===0; })
-                           .length===0) {
-                    return {"id": "%s" + term, "text": term};
-                } 
-            }
-        """.format(NewItemPrefix)
-
-        val onLoad = OnLoad(
-            JsRaw(
-                onChangeJS ++
-                getJsonJS ++
-                createSearchChoiceJS ++
-                select2JS
-            )
-        )
-
-        <span>
-          <head>
-            <link rel="stylesheet" href={"/" + LiftRules.resourceServerPath + "/combobox/select2.css"} type="text/css" media="all" />
-            <script type="text/javascript" src={"/" + LiftRules.resourceServerPath + "/combobox/select2.js"}></script>
-            {Script(onLoad)}
-          </head>
-          <input type="hidden" id={comboBoxID} value={default.map(_.id).getOrElse("")}/>
-        </span>
+    if (allowCreate) {
+      """
+        $("#%s").select2({
+          %s,
+          ajax: %s,
+          initSelection: function(element, callback) {
+            var data = %s;
+            callback(data);
+          },
+          createSearchChoice: createNewItem
+        });
+      """.format(comboBoxID, jsOptions, ajaxJS, defaultValue)
+    } else {
+      """
+        $("#%s").select2({
+          %s,
+          ajax: %s,
+          initSelection: function(element, callback) {
+            var data = %s;
+             callback(data);
+          }
+        })
+      """.format(comboBoxID, jsOptions, ajaxJS, defaultValue)
     }
+  }
+
+  /**
+   *  The ComboBox HTML code that could bind to template.
+   */
+  def comboBox: NodeSeq = {
+
+    val onSelectJS = SHtml.ajaxCall(Call("getJSON"), onItemSelected_* _)._2.toJsCmd
+    val onChangeJS = """
+      $("#%s").on("change", function(e) { 
+        %s 
+      });
+    """.format(comboBoxID, onSelectJS)
+
+    val getJsonJS = """
+      function getJSON() {
+        return JSON.stringify($('#%s').select2("data"));
+      }
+
+    """.format(comboBoxID)
+
+    val createSearchChoiceJS = """
+      function createNewItem (term, data) { 
+        if ($(data).filter(function() { return this.text.localeCompare(term)===0; })
+                   .length===0) {
+          return {"id": "%s" + term, "text": term};
+        } 
+      }
+      """.format(NewItemPrefix)
+
+    val onLoad = OnLoad(
+      JsRaw(
+        onChangeJS ++
+        getJsonJS ++
+        createSearchChoiceJS ++
+        select2JS
+      )
+    )
+
+    <span>
+      <head>
+        <link rel="stylesheet" href={"/" + LiftRules.resourceServerPath + "/combobox/select2.css"} type="text/css" media="all" />
+        <script type="text/javascript" src={"/" + LiftRules.resourceServerPath + "/combobox/select2.js"}></script>
+        {Script(onLoad)}
+      </head>
+      <input type="hidden" id={comboBoxID} value={default.map(_.id).getOrElse("")}/>
+    </span>
+  }
 }
