@@ -250,7 +250,7 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
   /**
    *  The JsCmd that could clear current selection in the combobox.
    */
-  val clear: JsCmd = JsRaw("""$("#%s").select2("val", "")""" format(comboBoxID))
+  val clear: JsCmd = JsRaw(raw"""$$("#${comboBoxID}").select2("val", "")""")
 
   /**
    *  This will be called when user selected or inserted an item in the combobox,
@@ -296,7 +296,7 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
    *  @return             The corresponding options in JavaScript format.
    */
   private def convertOptionsToJS(options: List[(String, JsExp)]) = {
-    val jsonOptions = options.map { case(k, v) => "'%s': %s" format(k, v.toJsCmd) }
+    val jsonOptions = options.map { case(k, v) => s"'$k': ${v.toJsCmd}" }
     jsonOptions.mkString(",")
   }
 
@@ -309,12 +309,12 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
     val jsOptions = convertOptionsToJS(options)
 
     val defaultValue = default match {
-      case None => "[]"
-      case Some(item) => """{'id': '%s', 'text': '%s'}""" format(item.id, item.text)
+      case None       => "[]"
+      case Some(item) => s"""{'id': '${item.id}', 'text': '{item.text}'}"""
     }
 
-    val ajaxJS = """{
-      url: "%s",
+    val ajaxJS = raw"""{
+      url: $ajaxURL,
       dataType: 'json',
       data: function (term, page) {
         return { 'term': term }
@@ -322,32 +322,36 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
       results: function (data, page) {
         return {results: data};
       }
-    }""".format(ajaxURL)
+    }"""
 
-    if (allowCreate) {
-      """
-        $("#%s").select2({
-          %s,
-          ajax: %s,
-          initSelection: function(element, callback) {
-            var data = %s;
-            callback(data);
-          },
-          createSearchChoice: createNewItem
-        });
-      """.format(comboBoxID, jsOptions, ajaxJS, defaultValue)
-    } else {
-      """
-        $("#%s").select2({
-          %s,
-          ajax: %s,
-          initSelection: function(element, callback) {
-            var data = %s;
-             callback(data);
-          }
-        })
-      """.format(comboBoxID, jsOptions, ajaxJS, defaultValue)
+    val allowCreateJS = raw"""
+      $$("#$comboBoxID").select2({
+        $jsOptions,
+        ajax: $ajaxJS,
+        initSelection: function(element, callback) {
+          var data = $defaultValue;
+          callback(data);
+        },
+        createSearchChoice: createNewItem
+      });
+    """
+
+    val notAllowCreateJS = raw"""
+      $$("#$comboBoxID").select2({
+        $jsOptions,
+        ajax: $ajaxJS,
+        initSelection: function(element, callback) {
+          var data = $defaultValue;
+          callback(data);
+        }
+      })
+    """
+
+    allowCreate match {
+      case true => allowCreateJS
+      case false => notAllowCreateJS
     }
+
   }
 
   /**
@@ -355,34 +359,38 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
    */
   def comboBox: NodeSeq = {
 
-    val onSelectJS = SHtml.ajaxCall(Call("getJSON"), onItemSelected_* _)._2.toJsCmd
-    val onChangeJS = """
-      $("#%s").on("change", function(e) { 
-        %s 
-      });
-    """.format(comboBoxID, onSelectJS)
+    val onSelectJS = SHtml.ajaxCall(Call("getJSON"), onItemSelected_* _).toJsCmd
+    val jsFunctions = raw"""
 
-    val getJsonJS = """
+      /**
+       *  Convert user selection in select2 to JSON string.
+       *
+       *  @return   The item(s) user selected in select2 in JSON format.
+       */
       function getJSON() {
-        var jsonData = JSON.stringify($('#%s').select2("data"));
+        var jsonData = JSON.stringify($$('#${comboBoxID}').select2("data"));
         return jsonData;
       }
-    """.format(comboBoxID)
 
-    val createSearchChoiceJS = """
+      /**
+       *  The callback for user to create an new item.
+       */
       function createNewItem (term, data) { 
-        if ($(data).filter(function() { return this.text.localeCompare(term)===0; })
+        if ($$(data).filter(function() { return this.text.localeCompare(term)===0; })
                    .length===0) {
-          return {"id": "%s" + term, "text": term};
+          return {"id": ${NewItemPrefix} + term, "text": term};
         } 
       }
-    """.format(NewItemPrefix)
+
+      $$("#${comboBoxID}").on("change", function(e) { 
+        $${onSelectJS}
+      });
+
+    """
 
     val onLoad = OnLoad(
       JsRaw(
-        onChangeJS ++
-        getJsonJS ++
-        createSearchChoiceJS ++
+        jsFunctions ++
         select2JS
       )
     )

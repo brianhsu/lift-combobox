@@ -1,8 +1,6 @@
 name := "combobox"
 
-liftVersion <<= liftVersion ?? "2.5-RC2"
-
-version <<= liftVersion apply { _ + "-0.3" }
+version := "2.5-RC2-0.3"
 
 organization := "net.liftmodules"
  
@@ -14,11 +12,8 @@ scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 scalacOptions in (Compile, doc) ++= Opts.doc.title("Lift ComboBox Module") 
 
-libraryDependencies <++= liftVersion { v =>
-  "net.liftweb" %% "lift-webkit" % v % "compile->default" :: Nil
-}
-
 libraryDependencies ++= Seq(
+  "net.liftweb" %% "lift-webkit" % "2.5-RC2",
   "org.scalatest" %% "scalatest" % "1.9.1" % "test"
 )
 
