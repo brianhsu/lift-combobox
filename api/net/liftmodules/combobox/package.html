@@ -1,0 +1,168 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>combobox - Lift ComboBox Module 2.5-RC-0.3 - net.liftmodules.combobox</title>
+          <meta name="description" content="combobox - Lift ComboBox Module 2.5 - RC - 0.3 - net.liftmodules.combobox" />
+          <meta name="keywords" content="combobox Lift ComboBox Module 2.5 RC 0.3 net.liftmodules.combobox" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../index.html';
+            var hash = 'net.liftmodules.combobox.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../lib/package_big.png" />
+        <p id="owner"><a href="../../package.html" class="extype" name="net">net</a>.<a href="../package.html" class="extype" name="net.liftmodules">liftmodules</a></p>
+        <h1>combobox</h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">combobox</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="net.liftmodules.combobox.ComboBox" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ComboBoxextendsDropDownMenu"></a>
+      <a id="ComboBox:ComboBox"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ComboBox.html"><span class="name">ComboBox</span></a><span class="result"> extends <a href="DropDownMenu.html" class="extype" name="net.liftmodules.combobox.DropDownMenu">DropDownMenu</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt"> The ComboBox Widget</p>
+    </li><li name="net.liftmodules.combobox.ComboItem" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ComboItemextendsProductwithSerializable"></a>
+      <a id="ComboItem:ComboItem"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ComboItem.html"><span class="name">ComboItem</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="text">text: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt"> This class represent the options in the combo box.</p>
+    </li><li name="net.liftmodules.combobox.DataParser" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DataParserextendsObject"></a>
+      <a id="DataParser:DataParser"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="DataParser.html"><span class="name">DataParser</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt"> This class is used to parse JSON returned by select2
+ when user selected / unselected an item from it.</p>
+    </li><li name="net.liftmodules.combobox.DropDownMenu" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="DropDownMenuextendsObject"></a>
+      <a id="DropDownMenu:DropDownMenu"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="DropDownMenu.html"><span class="name">DropDownMenu</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt"> This trait implements the function of filtering
+ drop down menu of select2 when user click it.</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="net.liftmodules.combobox.ComboBox" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ComboBox"></a>
+      <a id="ComboBox:ComboBox"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ComboBox$.html"><span class="name">ComboBox</span></a>
+      </span>
+      </h4>
+      <p class="comment cmt"> CombBox</p>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

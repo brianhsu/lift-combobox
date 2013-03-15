@@ -1,0 +1,294 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>root - Lift ComboBox Module 2.5-RC-0.3 - _root_</title>
+          <meta name="description" content="root - Lift ComboBox Module 2.5 - RC - 0.3 - root " />
+          <meta name="keywords" content="root Lift ComboBox Module 2.5 RC 0.3 root " />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="lib/template.js"></script>
+      <script type="text/javascript" src="lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = 'index.html';
+            var hash = 'package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="lib/package_big.png" />
+        
+        <h1>root package</h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">root</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><h3> Lift Combobox </h3><h4> Introduction </h4><p>This is a <a href="http://liftweb.net/" target="_blank">Lift web framework] module that let you create a jQuery-based <a href="http://ivaynberg.github.com/select2/" target="_blank">select2</a> combox using Scala code.</a></p><p>Lift Combobox support both signle-value drop-down style select field, or multiple-value field like tagging system you found on most Web 2.0 application.</p><h5> ScalaDoc API </h5><p>Here is the full <a href="http://brianhsu.github.com/lift-combobox/api/" target="_blank">ScalaDoc API</a> about this module.</p><h4> Install using SBT </h4><h5> Prerequisite </h5><ul><li>SBT</li><li>Scala 2.10.0 or above</li><li>Lift 2.5-RC2 or above</li></ul><h5> Installation </h5><p>Lift Combobox module is published as JAR file, you could using the following setting in your SBT <code>build.sbt</code> file, it will fetch / update the JAR files you need when you build your project.</p><pre>scalaVersion := <span class="lit">"2.10.0"</span>
+
+resolvers += <span class="lit">"bone"</span> at <span class="lit">"http://bone.twbbs.org.tw/ivy"</span>
+
+libraryDependencies += <span class="lit">"net.liftmodules"</span> %% <span class="lit">"combobox"</span> % <span class="lit">"2.5-RC2-0.3"</span></pre><h4> Initialize Combobox Module in Lift </h4><p>You need initialize lift-combox module in <code>Boot.scala</code>, so that it includes necessary JavaScript and CSS file to your website.</p><p>This is quite easily, just call <code>net.liftmodules.combobox.Combobox.init</code> in your <code>Boot</code> class.</p><pre><span class="kw">package</span> bootstrap.liftweb
+<span class="kw">import</span> net.liftmodules.combobox.ComboBox
+
+<span class="kw">class</span> Boot
+{
+  <span class="kw">def</span> boot
+  {
+    <span class="cmt">// ......</span>
+    ComboBox.init       <span class="cmt">// Initial lift-combobx module</span>
+  }
+}</pre><h4> Single-Value ComboBox </h4><p>Currently Lift ComboBox module support both OO-style and functional-style to create single-value drop-down combobox.</p><p>Both of them are easy to use, you could choose the method according to your taste about how to code.</p><h5> OO-Style </h5><p>When you prefer OO style to coding, you just create a object that extends from <code>net.liftmodules.combobox.ComboBox</code> class, and override the following method:</p><pre>onSearching(term: <span class="std">String</span>): <span class="std">List</span>[ComboItem]</pre><p>This method accept an arguement called <code>term</code>, which is what user input into the combobox. The return value is a <code>List[ComboItem]</code>, which will shows when the combobox is opened.</p><p>You could also override the following method to to provide the behavior when user selected an item / canceled the selection or added new item directly, the returned JsCmd will be executed in client's browser.</p><pre>onItemSelected(selected: <span class="std">Option</span>[ComboItem]): JsCmd
+onItemAdded(text: <span class="std">String</span>): JsCmd</pre><p>The following is the working example of a combobox that shows five ice-cream flavor in a drop-down menu, while user could enter custom text to add new item to combobox.</p><pre><span class="kw">import</span> net.liftweb.http.js.JE.Str
+<span class="kw">import</span> net.liftweb.http.js.JsCmd
+<span class="kw">import</span> net.liftweb.http.js.JsCmds.Alert
+
+<span class="kw">import</span> net.liftmodules.combobox.ComboItem
+<span class="kw">import</span> net.liftmodules.combobox.ComboBox
+
+<span class="cmt">// The options passed to select2, please consult the select2's document to</span>
+<span class="cmt">// know what options you could set.</span>
+<span class="kw">val</span> options = (<span class="lit">"placeholder"</span> -&gt; Str(<span class="lit">"Choice the flavor your like"</span>)) :: Nil
+
+<span class="kw">val</span> comboBox = <span class="kw">new</span> ComboBox(
+  default = <span class="std">None</span>,       <span class="cmt">// The default value of this combo box.</span>
+  allowCreate = <span class="kw">true</span>,   <span class="cmt">// Is user allowed to create item that does not exist?</span>
+  jsonOptions = options <span class="cmt">// The options of select2 combobox.</span>
+) {
+
+  <span class="cmt">// This is where you build your combox suggestion</span>
+  <span class="kw">override</span> <span class="kw">def</span> onSearching(term: <span class="std">String</span>): <span class="std">List</span>[ComboItem] = {
+    <span class="kw">val</span> flavor = <span class="std">List</span>(
+      ComboItem(<span class="lit">"f1"</span>, <span class="lit">"Valina"</span>), ComboItem(<span class="lit">"f2"</span>, <span class="lit">"Fruit"</span>),
+      ComboItem(<span class="lit">"f3"</span>, <span class="lit">"Banana"</span>), ComboItem(<span class="lit">"f4"</span>, <span class="lit">"Apple"</span>),
+      ComboItem(<span class="lit">"f5"</span>, <span class="lit">"Chocolate"</span>)
+    )
+
+    flavor.filter(_.text.contains(term))
+  }
+
+  <span class="cmt">// What you want to do when user selected or cancel an item.</span>
+  <span class="cmt">//</span>
+  <span class="cmt">// If user cancel selection by the X button in the combbox,</span>
+  <span class="cmt">// selected will be None, otherwise it will be Some[ComboItem].</span>
+  <span class="kw">override</span> <span class="kw">def</span> onItemSelected(selected: <span class="std">Option</span>[ComboItem]): JsCmd = {
+    println(<span class="lit">"selected:"</span> + selected)
+    <span class="cmt">// The returned JsCmd will be executed on client side.</span>
+    Alert(<span class="lit">"You selected:"</span> + selected)
+  }
+
+  <span class="cmt">// What you want to do if user added an item that</span>
+  <span class="cmt">// does not exist when allowCreate = true.</span>
+  <span class="kw">override</span> <span class="kw">def</span> onItemAdded(text: <span class="std">String</span>): JsCmd = {
+
+    <span class="cmt">// save this item to database or anything you want to do</span>
+    println(<span class="lit">"user added "</span> + text)
+
+    <span class="cmt">// The returned JsCmd will be executed on client side.</span>
+    Alert(<span class="lit">"Saved "</span> + text + <span class="lit">" to database"</span>)
+ }
+}</pre><p>After you have created ComboBox object, just binding <code>comboBox</code> to where you want the combobox to display using Lift's CSS binding feature in your snippet.</p><pre><span class="lit">"class=flavorInput"</span> #&gt; comboBox.comboBox</pre><p>Now you should able to see an combo box when you browse the page.</p><h5> Functional-style </h5><p>If you prefer functional style and high-order function, there is an factory method in <code>ComboBox</code> object for you.</p><p>There are two groups of factory function, one for ComboBox that allowed user add new item on the fly, and the one that does not allowd.</p><p>The following is the factory method that allows user to added new item in combobox.</p><pre><span class="cmt">// Using this group of functions when you want user is allowed to added new item.</span>
+<span class="kw">def</span> apply(searching: (<span class="std">String</span>) <span class="kw">=&gt;</span> <span class="std">List</span>[ComboItem], itemSelected: (<span class="std">Option</span>[ComboItem]) <span class="kw">=&gt;</span> JsCmd, itemAdded: (<span class="std">String</span>) <span class="kw">=&gt;</span> JsCmd): ComboBox
+<span class="kw">def</span> apply(default: <span class="std">Option</span>[ComboItem], searching: (<span class="std">String</span>) <span class="kw">=&gt;</span> <span class="std">List</span>[ComboItem], itemSelected: (<span class="std">Option</span>[ComboItem]) <span class="kw">=&gt;</span> JsCmd, itemAdded: (<span class="std">String</span>) <span class="kw">=&gt;</span> JsCmd): ComboBox
+<span class="kw">def</span> apply(default: <span class="std">Option</span>[ComboItem], searching: (<span class="std">String</span>) <span class="kw">=&gt;</span> <span class="std">List</span>[ComboItem], itemSelected: (<span class="std">Option</span>[ComboItem]) <span class="kw">=&gt;</span> JsCmd, itemAdded: (<span class="std">String</span>) <span class="kw">=&gt;</span> JsCmd, jsonOptions: <span class="std">List</span>[(<span class="std">String</span>, JsExp)]): ComboBox</pre><p>The following is the factor method that generate read-only combobox.</p><pre><span class="cmt">// Using this group of functions when you want user is not allowed to added new item.</span>
+<span class="kw">def</span> apply(searching: (<span class="std">String</span>) <span class="kw">=&gt;</span> <span class="std">List</span>[ComboItem], itemSelected: (<span class="std">Option</span>[ComboItem]) <span class="kw">=&gt;</span> JsCmd): ComboBox
+<span class="kw">def</span> apply(default: <span class="std">Option</span>[ComboItem], searching: (<span class="std">String</span>) <span class="kw">=&gt;</span> <span class="std">List</span>[ComboItem], itemSelected: (<span class="std">Option</span>[ComboItem]) <span class="kw">=&gt;</span> JsCmd): ComboBox
+<span class="kw">def</span> apply(default: <span class="std">Option</span>[ComboItem], searching: (<span class="std">String</span>) <span class="kw">=&gt;</span> <span class="std">List</span>[ComboItem], itemSelected: (<span class="std">Option</span>[ComboItem]) <span class="kw">=&gt;</span> JsCmd, jsonOptions: <span class="std">List</span>[(<span class="std">String</span>, JsExp)]): ComboBox</pre><p>The usage is pretty much the same with using OO-style.</p><pre><span class="kw">import</span> net.liftweb.http.js.JE.Str
+<span class="kw">import</span> net.liftweb.http.js.JsCmd
+<span class="kw">import</span> net.liftweb.http.js.JsCmds.Alert
+
+<span class="kw">import</span> net.liftmodules.combobox.ComboItem
+<span class="kw">import</span> net.liftmodules.combobox.ComboBox
+
+<span class="kw">val</span> options = (<span class="lit">"placeholder"</span> -&gt; Str(<span class="lit">"Choice the flavor your like"</span>)) :: Nil
+
+<span class="cmt">// This is where you build your combox suggestion</span>
+<span class="kw">def</span> onSearching(term: <span class="std">String</span>): <span class="std">List</span>[ComboItem] = {
+  <span class="kw">val</span> flavor = <span class="std">List</span>(
+    ComboItem(<span class="lit">"f1"</span>, <span class="lit">"Valina"</span>), ComboItem(<span class="lit">"f2"</span>, <span class="lit">"Fruit"</span>),
+    ComboItem(<span class="lit">"f3"</span>, <span class="lit">"Banana"</span>), ComboItem(<span class="lit">"f4"</span>, <span class="lit">"Apple"</span>),
+    ComboItem(<span class="lit">"f5"</span>, <span class="lit">"Chocolate"</span>)
+  )
+
+  flavor.filter(_.text.contains(term))
+}
+
+<span class="cmt">// What you want to do when user selected or cancel an item.</span>
+<span class="cmt">//</span>
+<span class="cmt">// If user cancel selection by the X button in the combbox,</span>
+<span class="cmt">// selected will be None, otherwise it will be Some[ComboItem].</span>
+<span class="kw">def</span> onItemSelected(selected: <span class="std">Option</span>[ComboItem]): JsCmd = {
+  println(<span class="lit">"selected:"</span> + selected)
+
+  <span class="cmt">// The returned JsCmd will be executed on client side.</span>
+  Alert(<span class="lit">"You selected:"</span> + selected)
+}
+
+<span class="cmt">// What you want to do if user added an item that</span>
+<span class="cmt">// does not exist when allowCreate = true.</span>
+<span class="kw">def</span> onItemAdded(text: <span class="std">String</span>): JsCmd = {
+  <span class="cmt">// save this item to database or anything you want to do</span>
+  println(<span class="lit">"user added "</span> + text)
+
+  <span class="cmt">// The returned JsCmd will be executed on client side.</span>
+  Alert(<span class="lit">"Saved "</span> + text + <span class="lit">" to database"</span>)
+}
+
+<span class="kw">val</span> comboBox = ComboBox(<span class="std">None</span>, onSearching _, onItemSelected _, onItemAdded _, options)</pre><p>And binding <code>comboBox.comboBox</code> to template in your snippet.</p><pre><span class="lit">"class=flavorInput"</span> #&gt; comboBox.comboBox</pre><h4> Multiple-Value ComboBox (Tagging) </h4><p>Lift combobox module also support for multiple-value combobox, which is tagging system you will find in most Web 2.0 website.</p><p>There are also OO-style version and functional-style version to create mutlitple-value combobox.</p><h5> OO-style </h5><p>To create multiple-value combobox, you also create a object extened from <code>ComboBox</code>, but will the following extra steps:</p><ol class="decimal"><li>Add <code>&quot;multiple&quot; -&gt; JsTrue</code> to <code>jsonOptions</code> in constructor.</li></ol><p>  2. Override the <code>def onMultiItemSelected(items: List[ComboItem]): JsCmd</code> method.</p><p>The following is code example that create a multiple-value combobox:</p><pre><span class="kw">import</span> net.liftweb.http.js.JE.Str
+<span class="kw">import</span> net.liftweb.http.js.JE.JsTrue
+<span class="kw">import</span> net.liftweb.http.js.JsCmd
+<span class="kw">import</span> net.liftweb.http.js.JsCmds.Alert
+
+<span class="kw">import</span> net.liftmodules.combobox.ComboItem
+<span class="kw">import</span> net.liftmodules.combobox.ComboBox
+
+<span class="kw">val</span> options = <span class="std">List</span>(
+  <span class="lit">"placeholder"</span> -&gt; Str(<span class="lit">"Choice the flavor your like"</span>),
+  <span class="lit">"multiple"</span> -&gt; JsTrue  <span class="cmt">// We want to create multiple-value combobox.</span>
+)
+
+<span class="kw">val</span> comboBox = <span class="kw">new</span> ComboBox(
+  default = <span class="std">None</span>,       <span class="cmt">// The default value of this combo box.</span>
+  jsonOptions = options <span class="cmt">// The options of select2 combobox.</span>
+) {
+
+  <span class="cmt">// This is where you build your combox suggestion</span>
+  <span class="kw">override</span> <span class="kw">def</span> onSearching(term: <span class="std">String</span>): <span class="std">List</span>[ComboItem] = {
+    <span class="kw">val</span> flavor = <span class="std">List</span>(
+      ComboItem(<span class="lit">"f1"</span>, <span class="lit">"Valina"</span>), ComboItem(<span class="lit">"f2"</span>, <span class="lit">"Fruit"</span>),
+      ComboItem(<span class="lit">"f3"</span>, <span class="lit">"Banana"</span>), ComboItem(<span class="lit">"f4"</span>, <span class="lit">"Apple"</span>),
+      ComboItem(<span class="lit">"f5"</span>, <span class="lit">"Chocolate"</span>)
+    )
+
+    flavor.filter(_.text.contains(term))
+  }
+
+  <span class="kw">override</span> <span class="kw">def</span> onMultiItemSelected(items: <span class="std">List</span>[ComboItem]): JsCmd = {
+
+    <span class="cmt">// Do the server-side work.</span>
+    out.println(<span class="lit">"selected:"</span> + items)
+
+    Alert(<span class="lit">"selected:"</span> + items)
+  }
+
+}</pre><h5> Functional-style </h5><p>If you want create multiple-value combobox with functional-style, you could use the following factory method in <code>ComboBox</code>:</p><pre><span class="kw">def</span> apply(
+ searching: (<span class="std">String</span>) <span class="kw">=&gt;</span> <span class="std">List</span>[ComboItem], itemsSelected: (<span class="std">List</span>[ComboItem]) <span class="kw">=&gt;</span> JsCmd,
+ allowCreate: <span class="std">Boolean</span>, jsonOptions: <span class="std">List</span>[(<span class="std">String</span>, JsExp)]
+): ComboBox</pre><p>The following is a working example equivalent to the OO-style code:</p><pre><span class="kw">import</span> net.liftweb.http.js.JE.Str
+<span class="kw">import</span> net.liftweb.http.js.JE.JsTrue
+<span class="kw">import</span> net.liftweb.http.js.JsCmd
+<span class="kw">import</span> net.liftweb.http.js.JsCmds.Alert
+
+<span class="kw">import</span> net.liftmodules.combobox.ComboItem
+<span class="kw">import</span> net.liftmodules.combobox.ComboBox
+
+<span class="kw">val</span> options = <span class="std">List</span>(
+  <span class="lit">"placeholder"</span> -&gt; Str(<span class="lit">"Choice the flavor your like"</span>),
+  <span class="lit">"multiple"</span> -&gt; JsTrue
+)
+
+<span class="cmt">// This is where you build your combox suggestion</span>
+<span class="kw">def</span> onSearching(term: <span class="std">String</span>): <span class="std">List</span>[ComboItem] = {
+  <span class="kw">val</span> flavor = <span class="std">List</span>(
+    ComboItem(<span class="lit">"f1"</span>, <span class="lit">"Valina"</span>), ComboItem(<span class="lit">"f2"</span>, <span class="lit">"Fruit"</span>),
+    ComboItem(<span class="lit">"f3"</span>, <span class="lit">"Banana"</span>), ComboItem(<span class="lit">"f4"</span>, <span class="lit">"Apple"</span>),
+    ComboItem(<span class="lit">"f5"</span>, <span class="lit">"Chocolate"</span>)
+  )
+
+  flavor.filter(_.text.contains(term))
+}
+
+<span class="cmt">// What you want to do when user selected or cancel an item.</span>
+<span class="cmt">//</span>
+<span class="cmt">// If user cancel selection by the X button in the combbox,</span>
+<span class="cmt">// selected will be None, otherwise it will be Some[ComboItem].</span>
+<span class="kw">def</span> onItemsSelected(itmes: <span class="std">List</span>[ComboItem]): JsCmd = {
+  println(<span class="lit">"selected:"</span> + items)
+  Alert(<span class="lit">"You selected:"</span> + items)
+}
+
+<span class="kw">val</span> comboBox = ComboBox(onSearching _, onItemsSelected _, options)</pre></div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="_root_.net" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="net"></a>
+      <a id="net:net"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="net/package.html"><span class="name">net</span></a>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
