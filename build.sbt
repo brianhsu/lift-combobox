@@ -10,7 +10,12 @@ crossScalaVersions := Seq("2.9.2", "2.9.1-1", "2.9.1")
 
 scalacOptions ++= Seq("-unchecked", "-deprecation")
 
-scalacOptions in (Compile, doc) ++= Opts.doc.title("Lift ComboBox Module") 
+scalacOptions in (Compile, doc) ++= Seq(
+  "-doc-root-content", "README.scaladoc",
+   "-doc-title", "Lift ComboBox Module 2.5-RC-0.3"
+)
+
+docDirectory in Compile <<= (baseDirectory / "api")
 
 libraryDependencies ++= Seq(
   "net.liftweb" %% "lift-webkit" % "2.5-RC2",
