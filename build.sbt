@@ -1,8 +1,6 @@
 name := "combobox"
 
-liftVersion <<= liftVersion ?? "2.5-RC1"
-
-version <<= liftVersion apply { _ + "-0.2" }
+version := "2.5-RC2-0.3"
 
 organization := "net.liftmodules"
  
@@ -14,13 +12,10 @@ scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 scalacOptions in (Compile, doc) ++= Opts.doc.title("Lift ComboBox Module") 
 
-resolvers ++= Seq(
-    "Scala-Tools" at "https://oss.sonatype.org/content/repositories/snapshots/"
+libraryDependencies ++= Seq(
+  "net.liftweb" %% "lift-webkit" % "2.5-RC2",
+  "org.scalatest" %% "scalatest" % "1.9.1" % "test"
 )
-
-libraryDependencies <++= liftVersion { v =>
-  "net.liftweb" %% "lift-webkit" % v % "compile->default" :: Nil
-}    
 
 publishTo := Some(
   Resolver.sftp("bone", "bone.twbbs.org.tw", "public_html/ivy")
