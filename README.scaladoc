@@ -2,7 +2,7 @@
 
 == Introduction ==
 
-This is a [[http://liftweb.net/ Lift web framework] module that let you create a jQuery-based [[http://ivaynberg.github.com/select2/ select2]] combox using Scala code.
+This is a [[http://liftweb.net/ Lift web framework]] module that let you create a jQuery-based [[http://ivaynberg.github.com/select2/ select2]] combox using Scala code.
 
 Lift Combobox support both signle-value drop-down style select field, or multiple-value field like tagging system you found on most Web 2.0 application.
 
