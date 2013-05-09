@@ -1,6 +1,6 @@
 name := "combobox"
 
-version := "2.5-RC2-0.3"
+version := "2.5-RC2-0.4"
 
 organization := "net.liftmodules"
  

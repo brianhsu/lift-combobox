@@ -28,7 +28,7 @@ Lift Combobox module is published as JAR file, you could using the following set
   
   resolvers += "bone" at "http://bone.twbbs.org.tw/ivy"
   
-  libraryDependencies += "net.liftmodules" %% "combobox" % "2.5-RC2-0.3"
+  libraryDependencies += "net.liftmodules" %% "combobox" % "2.5-RC2-0.4"
 }}}
 
 == Initialize Combobox Module in Lift ==

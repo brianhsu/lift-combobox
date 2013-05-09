@@ -383,7 +383,7 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
       }
 
       $$("#${comboBoxID}").on("change", function(e) { 
-        $${onSelectJS}
+        ${onSelectJS}
       });
 
     """
