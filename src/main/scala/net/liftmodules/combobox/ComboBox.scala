@@ -314,7 +314,7 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
     }
 
     val ajaxJS = raw"""{
-      url: $ajaxURL,
+      url: '$ajaxURL',
       dataType: 'json',
       data: function (term, page) {
         return { 'term': term }
