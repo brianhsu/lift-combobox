@@ -378,7 +378,7 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
       function createNewItem (term, data) { 
         if ($$(data).filter(function() { return this.text.localeCompare(term)===0; })
                    .length===0) {
-          return {"id": ${NewItemPrefix} + term, "text": term};
+          return {"id": '${NewItemPrefix}' + term, "text": term};
         } 
       }
 
