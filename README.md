@@ -293,7 +293,7 @@ val comboBox = new ComboBox(
   override def onMultiItemSelected(items: List[ComboItem]): JsCmd = {
     
     // Do the server-side work.
-    out.println("selected:" + items) 
+    println("selected:" + items) 
 
     Alert("selected:" + items)
   }
