@@ -310,11 +310,11 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
 
     val defaultValue = default match {
       case None       => "[]"
-      case Some(item) => s"""{'id': '${item.id}', 'text': '{item.text}'}"""
+      case Some(item) => s"""{'id': '${item.id}', 'text': '${item.text}'}"""
     }
 
     val ajaxJS = raw"""{
-      url: $ajaxURL,
+      url: '$ajaxURL',
       dataType: 'json',
       data: function (term, page) {
         return { 'term': term }
