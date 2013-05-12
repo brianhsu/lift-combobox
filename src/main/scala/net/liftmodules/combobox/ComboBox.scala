@@ -42,7 +42,7 @@ object ComboBox
    *                          the returned JsCmd will execute on client side.
    *  @param  jsonOptions     The options passed to select2.
    */
-  def apply(default: Option[ComboItem],
+  def apply(default: List[ComboItem],
             searching: (String) => List[ComboItem],
             itemSelected: (Option[ComboItem]) => JsCmd, 
             jsonOptions: List[(String, JsExp)]): ComboBox = {
@@ -62,7 +62,7 @@ object ComboBox
    *  @param  itemSelected    What to do if user selected an item in combobox, 
    *                          the returned JsCmd will execute on client side.
    */
-  def apply(default: Option[ComboItem], 
+  def apply(default: List[ComboItem], 
             searching: (String) => List[ComboItem],
             itemSelected: (Option[ComboItem]) => JsCmd): ComboBox = {
   
@@ -80,7 +80,7 @@ object ComboBox
   def apply(searching: (String) => List[ComboItem],
             itemSelected: (Option[ComboItem]) => JsCmd): ComboBox = {
   
-    ComboBox.apply(None, searching, itemSelected, Nil)
+    ComboBox.apply(Nil, searching, itemSelected, Nil)
   }
   
   /**
@@ -95,7 +95,7 @@ object ComboBox
    *                          the returned JsCmd will execute on client side.
    *  @param  jsonOptions     The options passed to select2.
    */
-  def apply(default: Option[ComboItem],
+  def apply(default: List[ComboItem],
             searching: (String) => List[ComboItem],
             itemSelected: (Option[ComboItem]) => JsCmd, 
             itemAdded: (String) => JsCmd,
@@ -120,7 +120,7 @@ object ComboBox
    *  @param  itemAdded       What to do if user added an item into combobox,
    *                          the returned JsCmd will execute on client side.
    */
-  def apply(default: Option[ComboItem],
+  def apply(default: List[ComboItem],
             searching: (String) => List[ComboItem],
             itemSelected: (Option[ComboItem]) => JsCmd, 
             itemAdded: (String) => JsCmd): ComboBox = {
@@ -142,7 +142,7 @@ object ComboBox
             itemSelected: (Option[ComboItem]) => JsCmd, 
             itemAdded: (String) => JsCmd): ComboBox = {
   
-    ComboBox.apply(None, searching, itemSelected, itemAdded, Nil)
+    ComboBox.apply(Nil, searching, itemSelected, itemAdded, Nil)
   }
   
   /**
@@ -153,12 +153,13 @@ object ComboBox
    *  @param  itemsSelected   What to do if user selected / unselect  item in combobox, 
    *                          the returned JsCmd will execute on client side.
    */
-  def apply(searching: (String) => List[ComboItem],
+  def apply(default: List[ComboItem],
+            searching: (String) => List[ComboItem],
             itemsSelected: (List[ComboItem]) => JsCmd, 
             allowCreate: Boolean,
             jsonOptions: List[(String, JsExp)]): ComboBox = {
 
-    new ComboBox(None, allowCreate, jsonOptions) {
+    new ComboBox(default, allowCreate, jsonOptions) {
       override def onSearching(term: String) = { searching(term) }
       override def onMultiItemSelected(items: List[ComboItem]): JsCmd = { 
         itemsSelected(items) 
@@ -202,7 +203,7 @@ object ComboBox
  *  @param  allowCreate     Is user allowed to enter item that does not on the sugeestion list.
  *  @param  jsonOptions     The options should pass to select2.
  */
-abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean, 
+abstract class ComboBox(default: List[ComboItem], allowCreate: Boolean, 
                         jsonOptions: List[(String, JsExp)] = Nil) extends DropDownMenu
 {
   private val NewItemPrefix = Helpers.nextFuncName
@@ -309,8 +310,10 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
     val jsOptions = convertOptionsToJS(options)
 
     val defaultValue = default match {
-      case None       => "[]"
-      case Some(item) => s"""{'id': '${item.id}', 'text': '${item.text}'}"""
+      case Nil   => "[]"
+      case items => items.map { item => 
+        s"""{'id': '${item.id}', 'text': '${item.text}'}"""
+      }.mkString("[", ",", "]")
     }
 
     val ajaxJS = raw"""{
@@ -401,7 +404,7 @@ abstract class ComboBox(default: Option[ComboItem], allowCreate: Boolean,
         <script type="text/javascript" src={"/" + LiftRules.resourceServerPath + "/combobox/select2.js"}></script>
         {Script(onLoad)}
       </head>
-      <input type="hidden" id={comboBoxID} value={default.map(_.id).getOrElse("")}/>
+      <input type="hidden" id={comboBoxID} value={default.map(_.id).mkString(",")}/>
     </span>
   }
 }

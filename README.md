@@ -52,7 +52,7 @@ scalaVersion := "2.10.0"
 
 resolvers += "bone" at "http://bone.twbbs.org.tw/ivy"
 
-libraryDependencies += "net.liftmodules" %% "combobox" % "2.5-RC2-0.5"
+libraryDependencies += "net.liftmodules" %% "combobox" % "2.5-RC2-0.6"
 
 ```
 

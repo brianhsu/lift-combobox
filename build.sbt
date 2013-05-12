@@ -1,6 +1,6 @@
 name := "combobox"
 
-version := "2.5-RC2-0.5"
+version := "2.6-M2-0.7"
 
 organization := "net.liftmodules"
  
@@ -12,13 +12,11 @@ scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 scalacOptions in (Compile, doc) ++= Seq(
   "-doc-root-content", "README.scaladoc",
-   "-doc-title", "Lift ComboBox Module 2.5-RC-0.5"
+   "-doc-title", "Lift ComboBox Module 2.5-RC-0.6"
 )
 
-docDirectory in Compile <<= (baseDirectory / "api")
-
 libraryDependencies ++= Seq(
-  "net.liftweb" %% "lift-webkit" % "2.5-RC2",
+  "net.liftweb" %% "lift-webkit" % "2.6-M2",
   "org.scalatest" %% "scalatest" % "1.9.1" % "test"
 )
 
