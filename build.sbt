@@ -1,10 +1,10 @@
 name := "combobox"
 
-version := "2.6-M2-0.7"
+version := "3.0-M2-SNAPSHOT"
 
 organization := "net.liftmodules"
  
-scalaVersion := "2.10.0"
+scalaVersion := "2.11.2"
 
 crossScalaVersions := Seq("2.9.2", "2.9.1-1", "2.9.1")
 
@@ -16,8 +16,8 @@ scalacOptions in (Compile, doc) ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "net.liftweb" %% "lift-webkit" % "2.6-M2",
-  "org.scalatest" %% "scalatest" % "1.9.1" % "test"
+  "net.liftweb" %% "lift-webkit" % "3.0-M2",
+  "org.scalatest" %% "scalatest" % "2.2.1" % "test"
 )
 
 publishTo := Some(
