@@ -1,13 +1,11 @@
+val liftVersion = SettingKey[String]("liftVersion", "Version number of the Lift Web Framework")
+
 name := "combobox"
-
 version := "3.0-M2-SNAPSHOT"
-
 organization := "net.liftmodules"
- 
-scalaVersion := "2.11.2"
-
 crossScalaVersions := Seq("2.9.2", "2.9.1-1", "2.9.1")
-
+scalaVersion := "2.11.2"
+liftVersion := "3.0-M2"
 scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 scalacOptions in (Compile, doc) ++= Seq(
@@ -16,7 +14,7 @@ scalacOptions in (Compile, doc) ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "net.liftweb" %% "lift-webkit" % "3.0-M2",
+  "net.liftweb" %% "lift-webkit" % liftVersion.value % "provided",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test"
 )
 
