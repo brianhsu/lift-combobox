@@ -1,10 +1,9 @@
 package net.liftmodules.combobox
 
-import org.scalatest.FunSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{FunSpec, Matchers}
 import net.liftweb.util.StringHelpers
 
-class DataParserSpec extends FunSpec with ShouldMatchers {
+class DataParserSpec extends FunSpec with Matchers {
 
   describe("DataParser") {
     
@@ -22,8 +21,8 @@ class DataParserSpec extends FunSpec with ShouldMatchers {
 
       val selected = dataParser.parseSelected(jsonData)
 
-      selected.isLeft should be === true
-      selected.left.get should be === List(
+      selected.isLeft shouldEqual true
+      selected.left.get shouldEqual List(
         ComboItem("3436494", "Item1"), 
         ComboItem("testID", "ItemABCD"),
         ComboItem("3436494", "Item1")
@@ -36,16 +35,16 @@ class DataParserSpec extends FunSpec with ShouldMatchers {
       val jsonData = """[]"""
       val selected = dataParser.parseSelected(jsonData)
 
-      selected.isLeft should be === true
-      selected.left.get should be === Nil
+      selected.isLeft shouldEqual true
+      selected.left.get shouldEqual Nil
     }
 
     it ("should parse null to Right[(None, false)]") {
       val jsonData = """null"""
       val selected = dataParser.parseSelected(jsonData)
 
-      selected.isRight should be === true
-      selected.right.get should be === None
+      selected.isRight shouldEqual true
+      selected.right.get shouldEqual None
     }
 
     it ("should parse new item object as Right(Some[ComboItem], true)") {
@@ -53,16 +52,16 @@ class DataParserSpec extends FunSpec with ShouldMatchers {
       val jsonData = """{"id": "%s", "text": "NewItem"}""".format(newItemID)
       val selected = dataParser.parseSelected(jsonData)
 
-      selected.isRight should be === true
-      selected.right.get should be === Some(ComboItem(newItemID, "NewItem"), true)
+      selected.isRight shouldEqual true
+      selected.right.get shouldEqual Some(ComboItem(newItemID, "NewItem"), true)
     }
 
     it ("should parse old item object as Right(Some[ComboItem], false)") {
       val jsonData = """{"id": "4281091", "text": "OldItem"}"""
       val selected = dataParser.parseSelected(jsonData)
 
-      selected.isRight should be === true
-      selected.right.get should be === Some(ComboItem("4281091", "OldItem"), false)
+      selected.isRight shouldEqual true
+      selected.right.get shouldEqual Some(ComboItem("4281091", "OldItem"), false)
     }
 
   }

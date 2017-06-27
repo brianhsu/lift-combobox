@@ -1,12 +1,10 @@
 package net.liftmodules.combobox
 
-import org.scalatest.FunSpec
-import org.scalatest.matchers.ShouldMatchers
-
+import org.scalatest.{FunSpec, Matchers}
 import net.liftweb.json._
 import net.liftweb.http.JsonResponse
 
-class DropDownMenuSpec extends FunSpec with ShouldMatchers {
+class DropDownMenuSpec extends FunSpec with Matchers {
 
   implicit val formatter = DefaultFormats
 
@@ -17,7 +15,7 @@ class DropDownMenuSpec extends FunSpec with ShouldMatchers {
       val json = dropDownMenu.searchAjax("ext").asInstanceOf[JsonResponse].json.toJsCmd
       val items = JsonParser.parse(json).children.map(_.extract[ComboItem])
 
-      items should be === List(ComboItem("id1", "text1"), ComboItem("id2", "text2"))
+      items shouldEqual List(ComboItem("id1", "text1"), ComboItem("id2", "text2"))
     }
 
     it ("should generate empty JSON menu correct if there is no matching items") {
@@ -25,7 +23,7 @@ class DropDownMenuSpec extends FunSpec with ShouldMatchers {
       val json = dropDownMenu.searchAjax("nothing").asInstanceOf[JsonResponse].json.toJsCmd
       val items = JsonParser.parse(json).children.map(_.extract[ComboItem])
 
-      items should be === Nil
+      items shouldEqual Nil
     }
   }
 }
